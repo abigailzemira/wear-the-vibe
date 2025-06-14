@@ -1,4 +1,4 @@
-    import Replicate from "replicate";
+import Replicate from "replicate";
 import { readFile } from "node:fs/promises";
 
 const replicate = new Replicate({
@@ -14,23 +14,24 @@ export default async function main(imageUrl: string) {
 //   image = `data:application/octet-stream;base64,${data}`;
   const input = {
     image: imageUrl,
-    prompt: `> Analyze the image from this image URL
-> Extract the **dominant color palette** from the image.
-> The color palette must contain **at least 4 distinct colors**.
-> Return the result in the following **JSON format**:
->
-> 
-> type ColorPalette = [{ color: "string", percentage: "string" } ]
-> 
->
-> Where:
->
-> * "color" is the hex code of the color (e.g., "#FF5733")
-> * "percentage" is the **approximate proportion** of the color in the image (e.g., "23%")
-//order it by the percentage in descend
->
-> Output only valid JSON corresponding to the "ColorPalette" type.
-`,
+    prompt: `Analyze this image and extract the dominant color palette containing at least 4 distinct colors.
+
+Return ONLY a valid JSON array
+(e.g. 
+[
+  {"color": string, "percentage": number},
+  {"color": string, "percentage": number},
+  {"color": string, "percentage": number},
+  {"color": string, "percentage": number}
+]
+)
+
+Requirements:
+- Use hex color codes (e.g., #FF5733)
+- Percentage is a whole number
+- Total percentage of all the colors must be 100
+- Order by percentage in descending order
+- Return only the JSON array, no other text or explanations`,
   };
   let fullResponse = ""
   for await (const event of replicate.stream(
