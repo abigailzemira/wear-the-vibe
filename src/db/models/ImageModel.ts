@@ -11,15 +11,18 @@ export default class ImageModel {
          console.log("masukkkkk model")
         let colorPalette = await main(imageUrl)
         // console.log(colorPalette, "<<< ini colo palet")
+        if(!colorPalette) throw {message: "ai failed to generate color palette"}
+
         return colorPalette
        } catch (error) {
         console.log(error)
        }
     }
 
-    static async analyzeMood({ palette }: { palette: ColorPalette[] }) {
+    static async analyzeMood(palette: {palette: ColorPalette[] }) {
         try {
-            let mood = await streamMood()
+            console.log(palette, "<<<<< palette di mood model")
+            let mood = await streamMood(palette)
             console.log(mood, "<<<< mood ceunah")
             return mood
         } catch (error) {

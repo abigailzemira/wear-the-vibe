@@ -5,7 +5,7 @@ import { ColorPalette } from "../db/models/ImageModel";
 const replicate = new Replicate({
   auth: process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN,
 });
-export default async function streamMood() {
+export default async function streamMood(palette: { palette: ColorPalette[] }) {
     console.log("masuk helper")
 
 //     const input = {
@@ -14,8 +14,7 @@ export default async function streamMood() {
   const input = {
     top_k: 50,
     top_p: 0.9,
-    prompt:
-      '```ts\n"colors": [\n    {"color": "#FF5733", "percentage": 25},\n    {"color": "#008080", "percentage": 25},\n    {"color": "#800080", "percentage": 25},\n    {"color": "#000000", "percentage": 10}\n  ]\n```\n\nwhat mood does this series of color give off? ',
+    prompt:  `${JSON.stringify(palette.palette)} What mood does this series of colors give off?`,
     max_tokens: 512,
     min_tokens: 0,
     temperature: 0.6,

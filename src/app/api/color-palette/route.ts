@@ -20,8 +20,10 @@ export async function POST(request: Request) {
         // console.log(body)
         let colorAnalysis = await ImageModel.analyzeImageColor(body)
         // console.log(JSON.parse(colorAnalysis), "<<<< colo palet yang siap dikirim")
+        if(!colorAnalysis) throw {message: "error getting analysis from model"}
+
         console.log(colorAnalysis, "<<<< colo palet yang siap dikirim")
-        return Response.json(JSON.stringify(colorAnalysis))
+        return Response.json(colorAnalysis)
     } catch (error) {
         console.log(error, "<<<< error di api")
         return Response.json({ error: "Failed to process image" }, { status: 500 })

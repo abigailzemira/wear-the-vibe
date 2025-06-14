@@ -15,54 +15,54 @@ const mockPalette = [
 ];
 
 // Map colors to moods based on hue, saturation, and brightness
-const getMoodFromColors = (colors: { color: string; percentage: number }[]) => {
-  // Add safety check for empty array
-  if (!colors || colors.length === 0) {
-    return { mood: "Unknown", emoji: "🎨" };
-  }
+// const getMoodFromColors = (colors: { color: string; percentage: number }[]) => {
+//   // Add safety check for empty array
+//   if (!colors || colors.length === 0) {
+//     return { mood: "Unknown", emoji: "🎨" };
+//   }
 
-  // This is a simplified version - a real implementation would be more sophisticated
-  const dominantColor = colors[0].color;
+//   // This is a simplified version - a real implementation would be more sophisticated
+//   const dominantColor = colors[0].color;
 
-  // Convert hex to HSL to determine mood
-  const r = Number.parseInt(dominantColor.slice(1, 3), 16) / 255;
-  const g = Number.parseInt(dominantColor.slice(3, 5), 16) / 255;
-  const b = Number.parseInt(dominantColor.slice(5, 7), 16) / 255;
+//   // Convert hex to HSL to determine mood
+//   const r = Number.parseInt(dominantColor.slice(1, 3), 16) / 255;
+//   const g = Number.parseInt(dominantColor.slice(3, 5), 16) / 255;
+//   const b = Number.parseInt(dominantColor.slice(5, 7), 16) / 255;
 
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
+//   const max = Math.max(r, g, b);
+//   const min = Math.min(r, g, b);
 
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
+//   let h = 0;
+//   let s = 0;
+//   const l = (max + min) / 2;
 
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+//   if (max !== min) {
+//     const d = max - min;
+//     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
-    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
-    else if (max === g) h = (b - r) / d + 2;
-    else if (max === b) h = (r - g) / d + 4;
+//     if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+//     else if (max === g) h = (b - r) / d + 2;
+//     else if (max === b) h = (r - g) / d + 4;
 
-    h *= 60;
-  }
+//     h *= 60;
+//   }
 
-  // Determine mood based on HSL
-  if (s < 0.2) return { mood: "Calm", emoji: "😌" };
-  if (h >= 0 && h < 30) return { mood: "Energetic", emoji: "🔥" };
-  if (h >= 30 && h < 60) return { mood: "Cheerful", emoji: "😊" };
-  if (h >= 60 && h < 180) return { mood: "Fresh", emoji: "🌿" };
-  if (h >= 180 && h < 240) return { mood: "Relaxed", emoji: "🌊" };
-  if (h >= 240 && h < 300) return { mood: "Creative", emoji: "🎨" };
-  return { mood: "Romantic", emoji: "💖" };
-};
+//   // Determine mood based on HSL
+//   if (s < 0.2) return { mood: "Calm", emoji: "😌" };
+//   if (h >= 0 && h < 30) return { mood: "Energetic", emoji: "🔥" };
+//   if (h >= 30 && h < 60) return { mood: "Cheerful", emoji: "😊" };
+//   if (h >= 60 && h < 180) return { mood: "Fresh", emoji: "🌿" };
+//   if (h >= 180 && h < 240) return { mood: "Relaxed", emoji: "🌊" };
+//   if (h >= 240 && h < 300) return { mood: "Creative", emoji: "🎨" };
+//   return { mood: "Romantic", emoji: "💖" };
+// };
 
 export default function ColorPalettePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [palette, setPalette] = useState<
     { color: string; percentage: number }[]
   >([]);
-  const [mood, setMood] = useState({ mood: "", emoji: "" });
+  const [mood, setMood] = useState({ mood: ""});
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const router = useRouter();
 
@@ -85,10 +85,35 @@ export default function ColorPalettePage() {
 
       // setPalette(data)
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< error from get color palette");
     }
   }
 
+  const getMoodFromColors = async (
+    colors: { color: string; percentage: number }[]
+  ) => {
+    console.log("masuk function get mood")
+    try {
+      let res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/mood-analysis`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(colors),
+        }
+      );
+
+      if (!res.ok) throw await res.json();
+      console.log(res, "<<< mood response")
+      const data = await res.json()
+      console.log(data, "<<<< mood from color palette page")
+      return data
+    } catch (error) {
+      console.log(error, "this error is from get mood from colors");
+    }
+  };
   useEffect(() => {
     getColorPalette();
   }, []); // Remove the timer logic from here
@@ -98,7 +123,10 @@ export default function ColorPalettePage() {
     if (palette.length > 0) {
       const timer = setTimeout(() => {
         setIsAnalyzing(false);
-        setMood(getMoodFromColors(palette));
+        (async () => {
+          const moodResult = await getMoodFromColors(palette);
+          setMood(moodResult);
+        })();
       }, 2000);
 
       return () => clearTimeout(timer);
@@ -114,6 +142,7 @@ export default function ColorPalettePage() {
     }, 1500);
   };
   console.log(palette, "<<<<< palette");
+  console.log(mood, "<<<<< mood");
   if (palette.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-900 text-white min-h-screen">
@@ -146,17 +175,18 @@ export default function ColorPalettePage() {
                 Color Swatches
               </h2>
               <div className="flex overflow-x-auto pb-2 gap-2">
-                {Array.isArray(palette) && palette.map((swatch, index) => (
-                  <div key={index} className="flex-shrink-0">
-                    <div
-                      className="w-20 h-20 rounded-md shadow-sm"
-                      style={{ backgroundColor: swatch.color }}
-                    ></div>
-                    <p className="text-xs text-center mt-1 text-gray-400">
-                      {swatch.percentage}%
-                    </p>
-                  </div>
-                ))}
+                {Array.isArray(palette) &&
+                  palette.map((swatch, index) => (
+                    <div key={index} className="flex-shrink-0">
+                      <div
+                        className="w-20 h-20 rounded-md shadow-sm"
+                        style={{ backgroundColor: swatch.color }}
+                      ></div>
+                      <p className="text-xs text-center mt-1 text-gray-400">
+                        {swatch.percentage}%
+                      </p>
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -165,7 +195,6 @@ export default function ColorPalettePage() {
                 Detected Mood
               </h2>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 rounded-full">
-                <span className="text-2xl">{mood.emoji}</span>
                 <span className="font-medium text-purple-400">{mood.mood}</span>
               </div>
               <p className="mt-4 text-gray-300">
