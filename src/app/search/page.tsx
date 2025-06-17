@@ -1,12 +1,17 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/src/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Play, Pause, Mic, SearchIcon } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/src/components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/src/components/ui/tabs";
+import { Play, Pause, Mic, SearchIcon } from "lucide-react";
+import { Input } from "@/src/components/ui/input";
 
 // Mock data - in a real app, this would come from an API
 const mockSearchResults = [
@@ -38,64 +43,64 @@ const mockSearchResults = [
     album: "Dopamine",
     cover: "/placeholder.svg?height=300&width=300&text=BORNS",
   },
-]
+];
 
 export default function SearchPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [activeTab, setActiveTab] = useState("title")
-  const [isRecording, setIsRecording] = useState(false)
-  const [playingId, setPlayingId] = useState<string | null>(null)
-  const [results, setResults] = useState<typeof mockSearchResults>([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("title");
+  const [isRecording, setIsRecording] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [results, setResults] = useState<typeof mockSearchResults>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // In a real app, we would search the API based on the search term and active tab
-    console.log(`Searching for ${searchTerm} in ${activeTab}`)
+    console.log(`Searching for ${searchTerm} in ${activeTab}`);
     // For demo purposes, we'll just filter the mock data
     if (searchTerm.trim() === "") {
-      setResults([])
+      setResults([]);
     } else {
       const filtered = mockSearchResults.filter(
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.artist.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      setResults(filtered)
+          item.artist.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setResults(filtered);
     }
-  }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchTerm(value)
+    const value = e.target.value;
+    setSearchTerm(value);
 
     // Show auto suggestions when typing
     if (value.length > 1) {
-      setShowSuggestions(true)
+      setShowSuggestions(true);
     } else {
-      setShowSuggestions(false)
+      setShowSuggestions(false);
     }
-  }
+  };
 
   const togglePlay = (id: string) => {
     if (playingId === id) {
-      setPlayingId(null)
+      setPlayingId(null);
     } else {
-      setPlayingId(id)
+      setPlayingId(id);
     }
-  }
+  };
 
   const startRecording = () => {
-    setIsRecording(true)
+    setIsRecording(true);
     // In a real app, we would start recording audio here
 
     // Simulate recording for 3 seconds
     setTimeout(() => {
-      setIsRecording(false)
+      setIsRecording(false);
       // In a real app, we would process the audio and search for matching songs
-      setResults(mockSearchResults)
-    }, 3000)
-  }
+      setResults(mockSearchResults);
+    }, 3000);
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-900 text-white min-h-screen">
@@ -103,16 +108,28 @@ export default function SearchPage() {
 
       <Tabs defaultValue="title" className="mb-8" onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 mb-6 bg-gray-800">
-          <TabsTrigger value="title" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger
+            value="title"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
             Title
           </TabsTrigger>
-          <TabsTrigger value="artist" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger
+            value="artist"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
             Artist
           </TabsTrigger>
-          <TabsTrigger value="lyrics" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger
+            value="lyrics"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
             Lyrics
           </TabsTrigger>
-          <TabsTrigger value="tune" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger
+            value="tune"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
             Tune
           </TabsTrigger>
         </TabsList>
@@ -137,8 +154,12 @@ export default function SearchPage() {
                 {mockSearchResults
                   .filter(
                     (item) =>
-                      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      item.artist.toLowerCase().includes(searchTerm.toLowerCase()),
+                      item.title
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                      item.artist
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
                   )
                   .slice(0, 5)
                   .map((item) => (
@@ -146,12 +167,16 @@ export default function SearchPage() {
                       key={item.id}
                       className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-2"
                       onClick={() => {
-                        setSearchTerm(item.title)
-                        setShowSuggestions(false)
-                        setResults([item])
+                        setSearchTerm(item.title);
+                        setShowSuggestions(false);
+                        setResults([item]);
                       }}
                     >
-                      <img src={item.cover || "/placeholder.svg"} alt={item.title} className="h-8 w-8 rounded" />
+                      <img
+                        src={item.cover || "/placeholder.svg"}
+                        alt={item.title}
+                        className="h-8 w-8 rounded"
+                      />
                       <div>
                         <p className="text-sm font-medium">{item.title}</p>
                         <p className="text-xs text-gray-400">{item.artist}</p>
@@ -201,11 +226,15 @@ export default function SearchPage() {
               onClick={startRecording}
               disabled={isRecording}
               size="lg"
-              className={`rounded-full h-16 w-16 ${isRecording ? "bg-red-500 animate-pulse" : "bg-purple-600"}`}
+              className={`rounded-full h-16 w-16 ${
+                isRecording ? "bg-red-500 animate-pulse" : "bg-purple-600"
+              }`}
             >
               <Mic size={24} />
             </Button>
-            <p className="mt-4 text-gray-400">{isRecording ? "Listening..." : "Tap to hum or sing a tune"}</p>
+            <p className="mt-4 text-gray-400">
+              {isRecording ? "Listening..." : "Tap to hum or sing a tune"}
+            </p>
           </div>
         </TabsContent>
       </Tabs>
@@ -213,7 +242,10 @@ export default function SearchPage() {
       {results.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {results.map((result) => (
-            <div key={result.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div
+              key={result.id}
+              className="bg-gray-800 rounded-lg shadow-md overflow-hidden"
+            >
               <div className="relative">
                 <img
                   src={result.cover || "/placeholder.svg"}
@@ -234,17 +266,23 @@ export default function SearchPage() {
                 </Button>
               </div>
               <div className="p-3">
-                <h3 className="font-medium text-sm truncate text-white">{result.title}</h3>
-                <p className="text-xs text-gray-400 truncate">{result.artist}</p>
+                <h3 className="font-medium text-sm truncate text-white">
+                  {result.title}
+                </h3>
+                <p className="text-xs text-gray-400 truncate">
+                  {result.artist}
+                </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
         searchTerm && (
-          <div className="text-center py-12 text-gray-400">No results found. Try a different search term.</div>
+          <div className="text-center py-12 text-gray-400">
+            No results found. Try a different search term.
+          </div>
         )
       )}
     </div>
-  )
+  );
 }
