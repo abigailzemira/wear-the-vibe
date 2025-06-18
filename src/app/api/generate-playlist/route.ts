@@ -1,6 +1,8 @@
 import { cookies, headers } from "next/headers";
 
 export async function POST(req: Request) {
+  let mood = await req.json();
+  console.log(mood, "<<<< mood from generate playlist api");
   const cookieStore = await cookies();
   const auth = cookieStore.get("spotify_access_token")?.value;
   const searchOptions = {
@@ -12,7 +14,7 @@ export async function POST(req: Request) {
   };
   try {
     const searchTracks = await fetch(
-      `https://api.spotify.com/v1/search?q=remaster%2520genre%3AMysterious&type=track`,
+      `https://api.spotify.com/v1/search?q=remaster%2520genre%3A${mood.mood}&type=track`,
       searchOptions
     );
     const data = await searchTracks.json();

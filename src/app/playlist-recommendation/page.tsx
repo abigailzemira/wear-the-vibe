@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { Button } from "@/src/components/ui/button";
@@ -97,7 +97,30 @@ export default function PlaylistRecommendationPage() {
   const handleSongClick = (id: string) => {
     setSelectedSong(id);
   };
-
+  async function getPlaylist() {
+    try {
+      let res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/generate-playlist`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(mood),
+        }
+      );
+      if (!res.ok)
+        throw { message: "Failed to fetch playlist", status: res.status };
+      let data = await res.json();
+      console.log(data, "<<<< data from playlist reccomendation page");
+    } catch (error) {
+      console.log(error, "<<<< error from playlist reccomendation page");
+    }
+  }
+  useEffect(() => {
+    // Fetch playlist data when the component mounts
+    getPlaylist();
+  }, []);
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-900 text-white min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

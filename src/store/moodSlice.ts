@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./index";
+import { createSelector } from "reselect";
 
 // Define types for the mood state
 interface ColorSwatch {
@@ -166,13 +167,18 @@ export const selectIsAnalyzing = (state: RootState) => state.mood.isAnalyzing;
 export const selectMoodError = (state: RootState) => state.mood.error;
 export const selectImageUrl = (state: RootState) => state.mood.imageUrl;
 
-// Combined selector for all mood data
-export const selectMoodData = (state: RootState) => ({
-  colorPalette: state.mood.colorPalette,
-  mood: state.mood.mood,
-  isAnalyzing: state.mood.isAnalyzing,
-  error: state.mood.error,
-  imageUrl: state.mood.imageUrl,
+// Input selectors
+const getMoodState = (state: RootState) => state.mood;
+
+// Memoized selector
+export const selectMoodData = createSelector([getMoodState], (moodState) => {
+  // Your transformation logic here
+  // This will only recalculate when moodState changes
+  return {
+    // Return your transformed data
+    mood: moodState.mood,
+    // ... other properties
+  };
 });
 
 export default moodSlice.reducer;
