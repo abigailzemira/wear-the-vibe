@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { setAuthCookies } from "@/src/actions";
 
 export default function SpotifyCallback() {
   const router = useRouter();
@@ -48,9 +49,13 @@ export default function SpotifyCallback() {
         }
 
         // Store tokens (you might want to use a different storage method)
-        localStorage.setItem("spotify_access_token", data.access_token);
-        localStorage.setItem("spotify_refresh_token", data.refresh_token);
+        // const cookieStore = await cookies();
+        // localStorage.setItem("spotify_access_token", data.access_token);
+        // cookieStore.set("spotify_access_token", data.access_token);
+        // localStorage.setItem("spotify_refresh_token", data.refresh_token);
+        // cookieStore.set("spotify_refresh_token", data.refresh_token);
 
+        await setAuthCookies(data.access_token, data.refresh_token);
         // Redirect to main app
         router.push("/"); // or wherever you want to redirect
       } catch (err) {

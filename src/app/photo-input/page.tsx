@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Camera, Upload, RefreshCw, ArrowRight } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/src/components/ui/button"
-import { cookies } from "next/headers"
 
 export default function PhotoInputPage() {
   const [file, setFile] = useState<File | null>(null)
