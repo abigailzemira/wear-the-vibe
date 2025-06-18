@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     );
     const data = await searchTracks.json();
 
-    return Response.json({ message: "mew mew mew", data });
+    return Response.json({ data });
   } catch (error) {
     console.log(error, "<<< error from generate playlist api");
     return Response.json(

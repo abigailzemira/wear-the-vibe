@@ -2,8 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 import { Button } from "../../components/ui/button";
 import { Music } from "lucide-react";
+import {
+  selectColorPalette,
+  selectMood,
+  selectIsAnalyzing,
+  selectMoodError,
+  selectImageUrl,
+  getColorPalette,
+  analyzeMood,
+  setIsAnalyzing,
+} from "../../store/moodSlice";
+import type { AppDispatch } from "../../store/index";
 
 // Mock data - in a real app, this would come from color analysis of the uploaded image
 const mockPalette = [
@@ -59,79 +71,37 @@ const mockPalette = [
 
 export default function ColorPalettePage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [palette, setPalette] = useState<
-    { color: string; percentage: number }[]
-  >([]);
-  const [mood, setMood] = useState({ mood: ""});
-  const [isAnalyzing, setIsAnalyzing] = useState(true);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
-  async function getColorPalette() {
-    try {
-      let res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/color-palette`,
-        {
-          method: "POST",
-          body: localStorage.getItem("imageUrl"),
-        }
-      );
+  // Get state from Redux store
+  const palette = useSelector(selectColorPalette);
+  const mood = useSelector(selectMood);
+  const isAnalyzing = useSelector(selectIsAnalyzing);
+  const error = useSelector(selectMoodError);
+  const imageUrl = useSelector(selectImageUrl);
 
-      if (!res.ok) throw await res.json();
-
-      const data = await res.json();
-      const parsed = JSON.parse(data);
-      console.log(parsed, "<<<<<< data from color palette page");
-      setPalette(parsed);
-
-      // setPalette(data)
-    } catch (error) {
-      console.log(error, "<<< error from get color palette");
-    }
-  }
-
-  const getMoodFromColors = async (
-    colors: { color: string; percentage: number }[]
-  ) => {
-    console.log("masuk function get mood")
-    try {
-      let res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/mood-analysis`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(colors),
-        }
-      );
-
-      if (!res.ok) throw await res.json();
-      console.log(res, "<<< mood response")
-      const data = await res.json()
-      console.log(data, "<<<< mood from color palette page")
-      return data
-    } catch (error) {
-      console.log(error, "this error is from get mood from colors");
-    }
-  };
   useEffect(() => {
-    getColorPalette();
-  }, []); // Remove the timer logic from here
+    const fetchColorPalette = async () => {
+      if (imageUrl) {
+        dispatch(setIsAnalyzing(true));
+        await dispatch(getColorPalette(imageUrl));
+      }
+    };
 
-  // Add a separate useEffect to handle mood setting after palette is updated
+    fetchColorPalette();
+  }, [dispatch, imageUrl]);
+
+  // Handle mood analysis after palette is updated
   useEffect(() => {
     if (palette.length > 0) {
-      const timer = setTimeout(() => {
-        setIsAnalyzing(false);
-        (async () => {
-          const moodResult = await getMoodFromColors(palette);
-          setMood(moodResult);
-        })();
+      const timer = setTimeout(async () => {
+        await dispatch(analyzeMood(palette));
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [palette]); // This will run when palette changes
+  }, [palette, dispatch]);
 
   const handleGeneratePlaylist = () => {
     setIsLoading(true);
@@ -195,11 +165,14 @@ export default function ColorPalettePage() {
                 Detected Mood
               </h2>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 rounded-full">
-                <span className="font-medium text-purple-400">{mood.mood}</span>
+                <span className="font-medium text-purple-400">
+                  {mood?.mood || "Unknown"}
+                </span>
               </div>
               <p className="mt-4 text-gray-300">
-                Your outfit colors suggest a {mood.mood.toLowerCase()} mood.
-                We'll create a playlist that matches this vibe.
+                Your outfit colors suggest a{" "}
+                {mood?.mood?.toLowerCase() || "unknown"} mood. We'll create a
+                playlist that matches this vibe.
               </p>
             </div>
 

@@ -1,15 +1,12 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from './index'
-import { cookies } from 'next/headers'
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "./index";
+import { cookies } from "next/headers";
 
 // Define a type for the slice state
-interface CounterState {
-  value: number
-}
 
 interface ImageUrlState {
-    imageDataUrl: string
+  imageDataUrl: string;
 }
 
 // Define the initial state using that type
@@ -18,8 +15,11 @@ interface ImageUrlState {
 // }
 
 const initialState: ImageUrlState = {
-    imageDataUrl: typeof window !== "undefined" ? (localStorage.getItem("imageUrl") as string) : ""
-}
+  imageDataUrl:
+    typeof window !== "undefined"
+      ? (localStorage.getItem("imageUrl") as string)
+      : "",
+};
 
 // export const counterSlice = createSlice({
 //   name: 'counter',
@@ -40,30 +40,26 @@ const initialState: ImageUrlState = {
 // })
 
 export const colorPaletteAnalysis = createAsyncThunk(
-    "imageUrl/colorPaletteAnalysis",
-    async (imageDataUrl: string) => {
-        const url = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!url) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
-        const response = await fetch(`${url}/api/color-palette`, {
-            method: "POST",
-            body: JSON.stringify({ value: imageDataUrl }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        return await response.json();
-    }
+  "imageUrl/colorPaletteAnalysis",
+  async (imageDataUrl: string) => {
+    const url = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!url) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+    const response = await fetch(`${url}/api/color-palette`, {
+      method: "POST",
+      body: JSON.stringify({ value: imageDataUrl }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await response.json();
+  }
 );
-
 
 // Other code such as selectors can use the imported `RootState` type
 // export const selectCount = (state: RootState) => state.counter.value
 
-
-
 // export const { increment, decrement, incrementByAmount } = counterSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectCount = (state: RootState) => state.counter.value
 
 // export default counterSlice.reducer

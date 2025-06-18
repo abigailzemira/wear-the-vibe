@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/src/components/ui/button"
-import { Play, Pause, ExternalLink, Camera, Heart, Share2 } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { Button } from "@/src/components/ui/button";
+import { Play, Pause, ExternalLink, Camera, Heart, Share2 } from "lucide-react";
+import {
+  selectMood,
+  selectColorPalette,
+  selectMoodData,
+} from "@/src/store/moodSlice";
 
 // Mock data - in a real app, this would come from an API based on color analysis
 const mockPlaylist = [
@@ -63,41 +69,59 @@ const mockPlaylist = [
     duration: "2:51",
     cover: "/placeholder.svg?height=300&width=300&text=Jason%20Derulo",
   },
-]
+];
 
 export default function PlaylistRecommendationPage() {
-  const [playingId, setPlayingId] = useState<string | null>(null)
-  const [isSaved, setIsSaved] = useState(false)
-  const [selectedSong, setSelectedSong] = useState<string | null>(null)
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [selectedSong, setSelectedSong] = useState<string | null>(null);
+
+  // Get mood data from Redux store
+  const mood = useSelector(selectMood);
+  const colorPalette = useSelector(selectColorPalette);
+  const moodData = useSelector(selectMoodData);
 
   const togglePlay = (id: string) => {
     if (playingId === id) {
-      setPlayingId(null)
+      setPlayingId(null);
     } else {
-      setPlayingId(id)
+      setPlayingId(id);
     }
-  }
+  };
 
   const savePlaylist = () => {
-    setIsSaved(true)
+    setIsSaved(true);
     // In a real app, we would save the playlist to the user's account
-  }
+  };
 
   const handleSongClick = (id: string) => {
-    setSelectedSong(id)
-  }
+    setSelectedSong(id);
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-900 text-white min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Your Energetic Playlist</h1>
-          <p className="text-gray-400 mt-1">Based on your vibrant outfit colors</p>
+          <h1 className="text-3xl font-bold">
+            Your {mood?.mood || "Custom"} Playlist
+          </h1>
+          <p className="text-gray-400 mt-1">
+            Based on your {mood?.mood ? mood.mood.toLowerCase() : "outfit"}{" "}
+            colors
+          </p>
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2" onClick={savePlaylist} disabled={isSaved}>
-            <Heart size={16} className={isSaved ? "fill-purple-600 text-purple-600" : ""} />
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={savePlaylist}
+            disabled={isSaved}
+          >
+            <Heart
+              size={16}
+              className={isSaved ? "fill-purple-600 text-purple-600" : ""}
+            />
             {isSaved ? "Saved" : "Save Playlist"}
           </Button>
           <Button variant="outline" className="gap-2">
@@ -107,48 +131,104 @@ export default function PlaylistRecommendationPage() {
         </div>
       </div>
 
+      {/* Color Palette Section */}
+      {colorPalette.length > 0 && (
+        <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-white">
+            Color Palette Analysis
+          </h2>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {colorPalette.map((swatch, index) => (
+              <div key={index} className="flex-shrink-0">
+                <div
+                  className="w-12 h-12 rounded-md shadow-sm"
+                  style={{ backgroundColor: swatch.color }}
+                ></div>
+                <p className="text-xs text-center mt-1 text-gray-400">
+                  {swatch.percentage}%
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-gray-300">
+            Detected mood:{" "}
+            <span className="text-purple-400 font-medium">
+              {mood?.mood || "Unknown"}
+            </span>
+          </p>
+        </div>
+      )}
+
       <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden mb-8">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-700 text-left">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">#</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Artist</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Album</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Duration</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Listen</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  #
+                </th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Title
+                </th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Artist
+                </th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Album
+                </th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Duration
+                </th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Listen
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
               {mockPlaylist.map((song, index) => (
                 <tr
                   key={song.id}
-                  className={`hover:bg-gray-700 cursor-pointer ${selectedSong === song.id ? "bg-gray-700" : ""}`}
+                  className={`hover:bg-gray-700 cursor-pointer ${
+                    selectedSong === song.id ? "bg-gray-700" : ""
+                  }`}
                   onClick={() => handleSongClick(song.id)}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    {index + 1}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0">
-                        <img className="h-10 w-10 rounded" src={song.cover || "/placeholder.svg"} alt={song.album} />
+                        <img
+                          className="h-10 w-10 rounded"
+                          src={song.cover || "/placeholder.svg"}
+                          alt={song.album}
+                        />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-white">{song.title}</div>
+                        <div className="text-sm font-medium text-white">
+                          {song.title}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{song.artist}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{song.album}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{song.duration}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    {song.artist}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    {song.album}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    {song.duration}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        togglePlay(song.id)
+                        e.stopPropagation();
+                        togglePlay(song.id);
                       }}
                     >
                       {playingId === song.id ? (
@@ -162,7 +242,7 @@ export default function PlaylistRecommendationPage() {
                       size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={(e) => {
-                        e.stopPropagation()
+                        e.stopPropagation();
                       }}
                       asChild
                     >
@@ -186,7 +266,11 @@ export default function PlaylistRecommendationPage() {
                 .filter((song) => song.id === selectedSong)
                 .map((song) => (
                   <div key={song.id} className="flex items-center">
-                    <img src={song.cover || "/placeholder.svg"} alt={song.title} className="h-12 w-12 rounded mr-4" />
+                    <img
+                      src={song.cover || "/placeholder.svg"}
+                      alt={song.title}
+                      className="h-12 w-12 rounded mr-4"
+                    />
                     <div>
                       <p className="font-medium text-white">{song.title}</p>
                       <p className="text-sm text-gray-400">{song.artist}</p>
@@ -207,7 +291,12 @@ export default function PlaylistRecommendationPage() {
                   <Play size={20} className="text-white" />
                 )}
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                asChild
+              >
                 <a href="#" target="_blank" rel="noopener noreferrer">
                   <ExternalLink size={16} className="text-gray-400" />
                 </a>
@@ -232,5 +321,5 @@ export default function PlaylistRecommendationPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
