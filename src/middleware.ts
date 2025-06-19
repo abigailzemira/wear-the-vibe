@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { verifyWithJose } from "./helpers/jwt";
 
 export async function middleware(req: Request) {
   const cookieStore = await cookies();
