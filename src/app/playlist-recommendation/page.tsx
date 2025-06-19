@@ -11,6 +11,21 @@ import {
   selectMoodData,
 } from "@/src/store/moodSlice";
 
+export type Playlist = {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  duration: number;
+  cover: {
+    height: number;
+    width: number;
+    url: string;
+  };
+  uri: string;
+  redirect_url: string;
+};
+
 // Mock data - in a real app, this would come from an API based on color analysis
 const mockPlaylist = [
   {
@@ -75,9 +90,10 @@ export default function PlaylistRecommendationPage() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [selectedSong, setSelectedSong] = useState<string | null>(null);
+  const [playlist, setPlaylist] = useState<Playlist[]>([]);
 
   // Get mood data from Redux store
-  const mood = useSelector(selectMood);
+  const mood = useSelector(selectMood) as { mood?: string } | null;
   const colorPalette = useSelector(selectColorPalette);
   const moodData = useSelector(selectMoodData);
 
@@ -109,10 +125,12 @@ export default function PlaylistRecommendationPage() {
           body: JSON.stringify(mood),
         }
       );
-      if (!res.ok)
+      if (!res.ok) {
         throw { message: "Failed to fetch playlist", status: res.status };
+      }
       let data = await res.json();
       console.log(data, "<<<< data from playlist reccomendation page");
+      setPlaylist(data.data);
     } catch (error) {
       console.log(error, "<<<< error from playlist reccomendation page");
     }
@@ -208,7 +226,7 @@ export default function PlaylistRecommendationPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {mockPlaylist.map((song, index) => (
+              {playlist.map((song, index) => (
                 <tr
                   key={song.id}
                   className={`hover:bg-gray-700 cursor-pointer ${
@@ -224,7 +242,7 @@ export default function PlaylistRecommendationPage() {
                       <div className="h-10 w-10 flex-shrink-0">
                         <img
                           className="h-10 w-10 rounded"
-                          src={song.cover || "/placeholder.svg"}
+                          src={song.cover.url || "/placeholder.svg"}
                           alt={song.album}
                         />
                       </div>
@@ -236,13 +254,14 @@ export default function PlaylistRecommendationPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {song.artist}
+                    {/* {song.artist} */}
+                    Somebody That I Used to Know
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                     {song.album}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {song.duration}
+                    {song.duration.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Button
@@ -265,9 +284,9 @@ export default function PlaylistRecommendationPage() {
                       size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={(e) => {
+                        window.open(song.redirect_url, "_blank");
                         e.stopPropagation();
                       }}
-                      asChild
                     >
                       <a href="#" target="_blank" rel="noopener noreferrer">
                         <ExternalLink size={16} className="text-gray-400" />

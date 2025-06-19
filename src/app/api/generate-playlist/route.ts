@@ -1,17 +1,26 @@
 import { cookies, headers } from "next/headers";
 
+export type TrackItem = {
+  id: string;
+  name: string;
+  artists: any[];
+  album: {
+    name: string;
+    images: any[];
+  };
+  duration_ms: number;
+  uri: string;
+  external_urls: {
+    spotify: string;
+  };
+};
+
 export async function POST(req: Request) {
   let mood = await req.json();
   console.log(mood, "<<<< mood from generate playlist api");
   const cookieStore = await cookies();
   const auth = cookieStore.get("spotify_access_token")?.value;
-  const searchOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth,
-    },
-  };
+
   try {
     const searchTracks = await fetch(
       `https://api.spotify.com/v1/search?q=remaster%2520genre%3A${mood.mood}&type=track`,
@@ -29,7 +38,8 @@ export async function POST(req: Request) {
     }
     const data = await searchTracks.json();
     console.log(data.tracks.items, "<<<< data from search tracks response");
-    let filteredData = data.tracks.items.map((el) => {
+
+    let filteredData = data.tracks.items.map((el: TrackItem) => {
       let minutes = el.duration_ms / (1000 * 60);
       let output = {
         id: el.id,
