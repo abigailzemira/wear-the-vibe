@@ -15,11 +15,36 @@ export async function POST(req: Request) {
   try {
     const searchTracks = await fetch(
       `https://api.spotify.com/v1/search?q=remaster%2520genre%3A${mood.mood}&type=track`,
-      searchOptions
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth,
+        },
+      }
     );
+    console.log(searchTracks, "<<<< search tracks response from spotify");
+    if (!searchTracks.ok) {
+      throw new Error("Failed to fetch tracks from Spotify");
+    }
     const data = await searchTracks.json();
-
-    return Response.json({ data });
+    console.log(data.tracks.items, "<<<< data from search tracks response");
+    let filteredData = data.tracks.items.map((el) => {
+      let minutes = el.duration_ms / (1000 * 60);
+      let output = {
+        id: el.id,
+        title: el.name,
+        artist: el.artists,
+        album: el.album.name,
+        duration: minutes,
+        cover: el.album.images[0],
+        uri: el.uri,
+        redirect_url: el.external_urls.spotify,
+      };
+      return output;
+    });
+    console.log(filteredData, "<<<<<< data syudah di filter");
+    return Response.json({ data: filteredData });
   } catch (error) {
     console.log(error, "<<< error from generate playlist api");
     return Response.json(
