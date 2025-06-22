@@ -31,9 +31,11 @@ export default async function streamMood(palette: { palette: ColorPalette[] }) {
   )) {
     // process.stdout.write(event.toString());
     if (event.toString()) {
-      response = event.toString();
+      response += event.toString(); // Concatenate instead of replacing
     }
   }
   console.log(response, "<<< response");
-  return response;
+  // Clean up the response to extract just the mood word
+  const cleanedResponse = response.trim().split(/\s+/)[0]; // Take first word only
+  return cleanedResponse;
 }

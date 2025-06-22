@@ -8,16 +8,8 @@ export async function middleware(req: Request) {
     const auth = cookieStore.get("spotify_access_token");
     if (!auth) throw { message: "Please login first!", status: 401 };
 
-    // // requestHeaders.set("x-user-id", decoded._id);
-
-    // const response = NextResponse.next({
-    //   request: {
-    //     headers: requestHeaders,
-    //   },
-    // });
-
-    // You can add more logic here if needed
-    //   return Response.json({ message: "Middleware executed", headers });
+    // If auth exists, continue to the route
+    return NextResponse.next();
   } catch (error: { message: string; status?: number } | any) {
     console.log(error, "<<<< error from middleware");
     return NextResponse.json(

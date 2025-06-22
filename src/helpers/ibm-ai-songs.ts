@@ -9,7 +9,7 @@ export default async function IBMSongGenerator(mood: string) {
     const input = {
       top_k: 50,
       top_p: 0.9,
-      prompt: `Give me a minimum of 7 song recommendations based on the following one-word mood: "happy". \n\nOutput the result as an array in the format: { title: string; artist: string }[]
+      prompt: `Give me a minimum of 7 song recommendations based on the following one-word mood: "${mood}". \n\nOutput the result as an array in the format: { title: string; artist: string }[]
       
       Return only a valid JSON array
       `,

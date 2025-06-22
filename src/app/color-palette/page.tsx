@@ -75,7 +75,8 @@ export default function ColorPalettePage() {
   const dispatch = useDispatch<AppDispatch>();
 
   // Get state from Redux store
-  const palette = useSelector(selectColorPalette);
+  const palette: { color: string; percentage: number }[] =
+    useSelector(selectColorPalette);
   const mood = useSelector(selectMood);
   const isAnalyzing = useSelector(selectIsAnalyzing);
   const error = useSelector(selectMoodError);
