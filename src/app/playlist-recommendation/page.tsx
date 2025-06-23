@@ -28,66 +28,6 @@ export type Playlist = {
   redirect_url: string;
 };
 
-// Mock data - in a real app, this would come from an API based on color analysis
-const mockPlaylist = [
-  {
-    id: "1",
-    title: "Electric Feel",
-    artist: "MGMT",
-    album: "Oracular Spectacular",
-    duration: "3:49",
-    cover: "/placeholder.svg?height=300&width=300&text=MGMT",
-  },
-  {
-    id: "2",
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    album: "After Hours",
-    duration: "3:20",
-    cover: "/placeholder.svg?height=300&width=300&text=The%20Weeknd",
-  },
-  {
-    id: "3",
-    title: "Dance Monkey",
-    artist: "Tones and I",
-    album: "The Kids Are Coming",
-    duration: "3:29",
-    cover: "/placeholder.svg?height=300&width=300&text=Tones%20and%20I",
-  },
-  {
-    id: "4",
-    title: "Levitating",
-    artist: "Dua Lipa",
-    album: "Future Nostalgia",
-    duration: "3:23",
-    cover: "/placeholder.svg?height=300&width=300&text=Dua%20Lipa",
-  },
-  {
-    id: "5",
-    title: "Watermelon Sugar",
-    artist: "Harry Styles",
-    album: "Fine Line",
-    duration: "2:54",
-    cover: "/placeholder.svg?height=300&width=300&text=Harry%20Styles",
-  },
-  {
-    id: "6",
-    title: "Don't Start Now",
-    artist: "Dua Lipa",
-    album: "Future Nostalgia",
-    duration: "3:03",
-    cover: "/placeholder.svg?height=300&width=300&text=Dua%20Lipa",
-  },
-  {
-    id: "7",
-    title: "Savage Love",
-    artist: "Jawsh 685 & Jason Derulo",
-    album: "Savage Love",
-    duration: "2:51",
-    cover: "/placeholder.svg?height=300&width=300&text=Jason%20Derulo",
-  },
-];
-
 export default function PlaylistRecommendationPage() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
@@ -162,7 +102,11 @@ export default function PlaylistRecommendationPage() {
     } catch (error) {
       console.log(error, "<<<< error from playlist reccomendation page");
       // Set some fallback data or show error message
-      alert(`Error generating playlist: ${error.message || "Unknown error"}`);
+      Swal.fire({
+        icon: "error",
+        title: "Error fetching playlist",
+        text: error instanceof Error ? error.message : "Unknown error occurred",
+      });
     }
   }
   useEffect(() => {
@@ -340,12 +284,12 @@ export default function PlaylistRecommendationPage() {
           <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <div className="flex items-center">
-                {mockPlaylist
+                {playlist
                   .filter((song) => song.id === selectedSong)
                   .map((song) => (
                     <div key={song.id} className="flex items-center">
                       <img
-                        src={song.cover || "/placeholder.svg"}
+                        src={song.cover.url || "/placeholder.svg"}
                         alt={song.title}
                         className="h-12 w-12 rounded mr-4"
                       />
