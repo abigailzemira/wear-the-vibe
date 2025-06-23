@@ -6,15 +6,29 @@ export async function middleware(req: Request) {
   try {
     console.log(cookieStore, "<<<< cookie store from middleware");
     const auth = cookieStore.get("spotify_access_token");
-    if (!auth) throw { message: "Please login first!", status: 401 };
+    if (!auth) {
+      throw {
+        message: "Please login first!",
+        status: 401,
+        type: "AUTHENTICATION_ERROR",
+      };
+    }
 
     // If auth exists, continue to the route
     return NextResponse.next();
-  } catch (error: { message: string; status?: number } | any) {
+  } catch (error: { message: string; status?: number; type?: string } | any) {
     console.log(error, "<<<< error from middleware");
+
+    // Return structured error response that can be handled by client
     return NextResponse.json(
-      { error: error.message },
-      { status: error.status }
+      {
+        error: {
+          message: error.message || "An unexpected error occurred",
+          type: error.type || "GENERAL_ERROR",
+          status: error.status || 500,
+        },
+      },
+      { status: error.status || 500 }
     );
   }
 }

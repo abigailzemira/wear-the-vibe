@@ -69,9 +69,7 @@ export default class SongModel {
             `Spotify search failed for ${song.title}:`,
             await searchTracks.text()
           );
-          throw new Error(
-            `Spotify API error: ${searchTracks.status} ${searchTracks.statusText}`
-          );
+          throw await searchTracks.json();
         }
 
         const track = await searchTracks.json();
