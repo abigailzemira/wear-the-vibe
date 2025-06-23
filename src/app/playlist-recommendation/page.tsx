@@ -93,6 +93,7 @@ export default function PlaylistRecommendationPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [selectedSong, setSelectedSong] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<Playlist[]>([]);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
   // Get mood data from Redux store
   const mood = useSelector(selectMood) as { mood?: string } | null;
@@ -111,7 +112,12 @@ export default function PlaylistRecommendationPage() {
     try {
       setIsSaved(true);
       // In a real app, we would save the playlist to the user's account
-      await savePlaylistToAccount(mood?.mood as string);
+      let redirect_url = await savePlaylistToAccount(
+        mood?.mood as string,
+        playlist
+      );
+      if (!redirect_url) throw new Error("Failed to save playlist");
+      setRedirectUrl(redirect_url);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -386,7 +392,16 @@ export default function PlaylistRecommendationPage() {
                 Try Another Photo
               </Button>
             </Link>
-            <Button variant="outline" className="gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={(e) => {
+                if (redirectUrl) {
+                  window.open(redirectUrl, "_blank");
+                }
+                e.stopPropagation();
+              }}
+            >
               <ExternalLink size={16} />
               Open in Spotify
             </Button>
