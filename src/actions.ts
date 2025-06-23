@@ -26,21 +26,18 @@ export async function savePlaylistToAccount(mood: string) {
     //     "description": "New playlist description",
     //     "public": false
     // }'
-    let res = await fetch(
-      `https://api.spotify.com/v1/users/smedjan/playlists`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + auth?.value,
-        },
-        body: JSON.stringify({
-          name: "New Playlist",
-          description: "New playlist description",
-          public: true,
-        }),
-      }
-    );
+    let res = await fetch(`https://api.spotify.com/v1/me/playlists`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + auth?.value,
+      },
+      body: JSON.stringify({
+        name: "New Playlist",
+        description: "New playlist description",
+        public: true,
+      }),
+    });
 
     if (!res.ok) throw await res.json();
     let data = await res.json();
