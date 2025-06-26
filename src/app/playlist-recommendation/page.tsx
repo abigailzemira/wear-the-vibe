@@ -104,9 +104,10 @@ export default function PlaylistRecommendationPage() {
       // Set some fallback data or show error message
       Swal.fire({
         icon: "error",
-        title: "Error fetching playlist",
-        text: error instanceof Error ? error.message : "Unknown error occurred",
+        title: "Unauthorized",
+        text: "Please login first",
       });
+      window.location.href = "/";
     }
   }
   useEffect(() => {

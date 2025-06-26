@@ -13,6 +13,12 @@ export async function setAuthCookies(
   return;
 }
 
+export async function checkCookies() {
+  const cookieStore = await cookies();
+  const access_token = cookieStore.get("spotify_access_token")?.value;
+  return access_token;
+}
+
 export async function savePlaylistToAccount(
   mood: string,
   playlist: Playlist[]

@@ -25,7 +25,6 @@ export function useErrorHandler() {
     },
     []
   );
-
   const handleApiCall = useCallback(
     async <T = any>(
       url: string,
@@ -36,14 +35,20 @@ export function useErrorHandler() {
         return await apiCall<T>(url, options);
       } catch (error) {
         if (showErrorAlert) {
-          await showError(error as ApiError);
+          const apiError = error as ApiError;
+
+          // Check if this is a Spotify token expiration error
+          if (ErrorHandler.isSpotifyTokenExpired(apiError)) {
+            await ErrorHandler.showSpotifyTokenExpired();
+          } else {
+            await showError(apiError);
+          }
         }
         return null;
       }
     },
     [showError]
   );
-
   const handleApiCallWithCustomError = useCallback(
     async <T = any>(
       url: string,
@@ -53,13 +58,27 @@ export function useErrorHandler() {
       try {
         return await apiCall<T>(url, options);
       } catch (error) {
-        const errorToShow = customErrorMessage || (error as ApiError).message;
-        await showError(errorToShow);
+        const apiError = error as ApiError;
+
+        // Check if this is a Spotify token expiration error
+        if (ErrorHandler.isSpotifyTokenExpired(apiError)) {
+          await ErrorHandler.showSpotifyTokenExpired();
+        } else {
+          const errorToShow = customErrorMessage || apiError.message;
+          await showError(errorToShow);
+        }
         return null;
       }
     },
     [showError]
   );
+  const handleSpotifyTokenExpired = useCallback(async (): Promise<boolean> => {
+    return await ErrorHandler.showSpotifyTokenExpired();
+  }, []);
+
+  const redirectToSpotifyLogin = useCallback(() => {
+    ErrorHandler.redirectToSpotifyLogin();
+  }, []);
 
   return {
     showError,
@@ -68,5 +87,7 @@ export function useErrorHandler() {
     showConfirm,
     handleApiCall,
     handleApiCallWithCustomError,
+    handleSpotifyTokenExpired,
+    redirectToSpotifyLogin,
   };
 }
