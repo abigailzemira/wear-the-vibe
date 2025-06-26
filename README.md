@@ -2,6 +2,8 @@
 
 Get Music That Matches Your Look
 
+Deployment link: https://wear-the-vibe.vercel.app/
+
 ## Description
 
 Wear The Vibe is an innovative web application that analyzes your outfit photos to generate personalized music recommendations. Using advanced AI and color analysis technology, the app extracts color palettes from your photos, determines your mood based on visual aesthetics, and curates music playlists that match your style and vibe.
